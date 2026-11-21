@@ -2,14 +2,49 @@
   font-family: system-ui, sans-serif;
   line-height: 1.5;
   color-scheme: light dark;
+  --border: color-mix(in srgb, currentColor 18%, transparent);
+  --muted: color-mix(in srgb, currentColor 60%, transparent);
+  --accent: #2f6fed;
+  --danger: #d33a3a;
+  --ok: #1f8f55;
 }
-
-body {
-  margin: 0;
-}
-
-main {
-  max-width: 48rem;
-  margin: 0 auto;
-  padding: 2rem 1rem;
-}
+body { margin: 0; }
+main { max-width: 72rem; margin: 0 auto; padding: 2rem 1rem; }
+h1 { margin: 0; } h2 { margin: 0 0 1rem; font-size: 1.1rem; }
+.layout { display: grid; gap: 1.5rem; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); align-items: start; }
+@media (max-width: 800px) { .layout { grid-template-columns: 1fr; } }
+.card { border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem; }
+button, input, select { font: inherit; }
+button { border: 1px solid var(--border); background: transparent; color: inherit; border-radius: 8px; padding: .4rem .8rem; cursor: pointer; }
+button:disabled { opacity: .6; cursor: not-allowed; }
+button.primary { background: var(--accent); border-color: var(--accent); color: #fff; width: 100%; margin-top: .5rem; padding: .6rem; }
+button.danger { background: var(--danger); border-color: var(--danger); color: #fff; }
+button.link { border: 0; padding: 0 .5rem; text-decoration: underline; margin-left: auto; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.toolbar { display: flex; gap: .5rem; margin-bottom: .75rem; }
+.tree { list-style: none; margin: 0; padding-left: 0; }
+.tree .tree { padding-left: 1.5rem; border-left: 1px dashed var(--border); margin-left: .6rem; }
+.row { display: flex; align-items: center; gap: .6rem; padding: .3rem .4rem; border-radius: 8px; }
+.row:hover { background: color-mix(in srgb, currentColor 6%, transparent); }
+.row .toggle { width: 1.5rem; padding: 0; border: 0; text-align: center; flex: none; }
+.code { font-family: ui-monospace, monospace; font-weight: 600; min-width: 4.5rem; }
+.name { flex: 1; min-width: 0; }
+.badges { display: flex; gap: .3rem; flex-wrap: wrap; }
+.badge { font-size: .72rem; padding: .05rem .5rem; border: 1px solid var(--border); border-radius: 99px; color: var(--muted); white-space: nowrap; }
+.badge.ok { color: var(--ok); border-color: var(--ok); }
+.icon-danger { color: var(--danger); font-size: .8rem; padding: .2rem .5rem; }
+.flash { animation: flash 1.8s ease-out; }
+@keyframes flash { from { background: color-mix(in srgb, var(--ok) 30%, transparent); } }
+.field { margin-bottom: .25rem; }
+.field label { display: block; font-weight: 600; font-size: .9rem; margin-bottom: .2rem; }
+.field input, .field select { width: 100%; box-sizing: border-box; padding: .5rem .6rem; border-radius: 8px; border: 1px solid var(--border); background: transparent; color: inherit; }
+.field.has-error input, .field.has-error select { border-color: var(--danger); }
+.hint, .error { margin: .2rem 0 0; font-size: .82rem; } .hint { color: var(--muted); } .error { color: var(--danger); }
+.state { color: var(--muted); padding: 1rem 0; }
+.alert { padding: .6rem .8rem; border-radius: 8px; margin: .75rem 0; display: flex; align-items: center; gap: .5rem; flex-wrap: wrap; }
+.alert p { margin: 0; }
+.alert-error { background: color-mix(in srgb, var(--danger) 14%, transparent); border: 1px solid var(--danger); }
+.alert-ok { background: color-mix(in srgb, var(--ok) 14%, transparent); border: 1px solid var(--ok); }
+.dialog { border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem; max-width: 26rem; background: Canvas; color: CanvasText; }
+.dialog::backdrop { background: rgb(0 0 0 / .45); }
+.actions { display: flex; justify-content: flex-end; gap: .5rem; margin-top: 1rem; }

@@ -1,47 +1,46 @@
-# Arranque de la prueba técnica full-stack
+# Catálogo de cuentas · Aravia
 
-Backend y frontend listos para correr, ya conectados entre sí. Es el punto de partida de la prueba, para que no gastes tiempo en instalar y configurar.
-
-| Carpeta | Qué hay | Puerto |
-|---------|---------|:------:|
-| `api/` | NestJS con TypeScript, con CORS habilitado hacia el front | 3000 |
-| `web/` | React con Vite y TypeScript | 5173 |
-
-Trae **solo lo que generan los CLI de Nest y de Vite**. No hay estructura de capas, ni entidades, ni interfaces de repositorio, ni librería de componentes, ni manejo de estado. Esas decisiones son tuyas y son parte de lo que se evalúa, así que cuéntanos en voz alta por qué las tomas. Si quieres reorganizar las carpetas, hazlo y explica por qué.
-
-## Requisitos
-
-- **Node 22** (está en `.nvmrc`, con `nvm use` queda listo).
-- **npm 10 o superior.** Con npm 9.2 la instalación falla. Revisa con `npm -v` antes de empezar.
+Módulo de catálogo de cuentas con API (NestJS) y pantalla (React + Vite). completado y sin errores. se hace validación con terminal y console.
 
 ## Cómo correrlo
 
 ```bash
-npm install     # instala la raíz, api/ y web/
-npm run dev     # levanta los dos a la vez
+npm install
+npm run dev        # API en :3000, web en :5173
+npm test           # pruebas de la API (Vitest)
 ```
 
-Abre http://localhost:5173. Si ves *La API respondió: Hello World!*, el frontend está hablando con el backend y puedes empezar.
+## API
 
-Esa pantalla existe solo para comprobar la conexión. Bórrala y construye lo tuyo.
+| Método | Ruta | Descripción |
+|--------|------|-------------|
+| GET | `/accounts` | Catálogo como árbol anidado (`acceptsMovements` indica si es hoja) |
+| POST | `/accounts` | Crea una cuenta: `{ code, name, nature? }` (`nature` solo para clases) |
+| DELETE | `/accounts/:code` | Elimina una cuenta; 409 si tiene hijas |
 
-## Scripts
+Errores con forma estable: `{ statusCode, type, message, errors: [{ field?, message }] }`.
+400 validación · 404 no existe · 409 código duplicado o cuenta con hijas · 422 padre inexistente.
 
-| Script | Qué hace |
-|--------|----------|
-| `npm run dev` | Levanta la API y el front juntos, en modo watch |
-| `npm run dev:api` | Solo la API |
-| `npm run dev:web` | Solo el front |
-| `npm run build` | Compila los dos |
-| `npm test` | Corre las pruebas de la API con Vitest |
-| `npm run lint` | Revisa los dos con oxlint |
+## Decisiones
 
-## Configuración
+- **Clean architecture en el backend** (`api/src/accounts`): `domain` (entidad, value object `AccountCode`, errores de dominio y puerto `AccountRepository`), `application` (un caso de uso por operación), `infrastructure` (repositorio en memoria) y `presentation` (controller y filtro que traduce errores de dominio a HTTP). El dominio no importa nada de Nest ni de Express.
+- **Repositorio en memoria con los datos del enunciado como semilla.** El enunciado no pide persistencia; cambiarla es implementar el puerto y cambiar un provider.
+- **Sin dependencias nuevas.** La validación vive en el dominio, no en DTOs con decoradores.
+- **La naturaleza** se pide solo al crear una clase y los descendientes la heredan (regla 8). La API calcula `acceptsMovements` (regla 6).
+- **Frontend por feature** (`web/src/features/accounts`): capa de API tipada, hook de datos, validación en cliente que replica las reglas del dominio y componentes pequeños (`AccountTree`, `AccountForm`, `ConfirmDialog`). Sin librerías de UI ni de estado: el estado es local y el alcance no lo justifica.
+- **Errores de la API junto al campo**: se mapean por `field`; los que no tienen campo salen como alerta del formulario. Al eliminar, el error (por ejemplo, cuenta con hijas) se muestra dentro del diálogo de confirmación.
+- Accesibilidad básica: roles de árbol, `aria-expanded`, `aria-invalid`, `role="alert"` y `<dialog>` nativo.
+- **Se implementa el buscador a partir de código y nombre** Permite realizar la busqueda de cuentas y tambien sus hijas si es que la tienen.
 
-El front lee la URL de la API de `VITE_API_URL`. Si no defines la variable, usa `http://localhost:3000`, así que no tienes que configurar nada para empezar. El ejemplo está en [`web/.env.example`](./web/.env.example).
+## Qué dejé afuera
 
-La API acepta peticiones del origen que diga `WEB_ORIGIN`, y por defecto `http://localhost:5173`. Si cambias el puerto del front, cambia esa variable.
+- Persistencia real de la base de datos, autenticación, edición de cuentas y movimientos contables.
+- Pruebas del frontend y e2e de la API.
+- Navegación por teclado completa del árbol (flechas).
 
-## Antes de entregar
+## Qué haría con más tiempo
 
-Reemplaza este archivo por tu propio `README.md`, con cómo se corre tu proyecto, qué decisiones tomaste, qué dejaste afuera y qué harías con más tiempo.
+- Base de datos en sql, puede ser con postgreSQL o SQLite, dependiendo la cantidad de movimiento a futuro.
+- La opción de editar las cuentas.
+- Rediseño visual y mensaje tooltip para apoyo a los usuarios novatos.
+- Dockerizar el back, front y bd, con el fin que sea más ameno el trabajo en diferentes entornos de desarrollo y despliegue en infraestructura local o en la nube.
